@@ -1,0 +1,16 @@
+from functools import lru_cache
+
+from services.ml_service.schemas.config import Settings
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """
+    Кэшированный фабричный метод для получения настроек.
+    Использует lru_cache для предотвращения повторного чтения .env файла.
+    """
+    return Settings()
+
+
+# Глобальный экземпляр настроек для удобного импорта
+settings = get_settings()
