@@ -5,7 +5,7 @@ from .core.config import settings
 
 
 async def lifespan(_app: FastAPI):
-    handler = CatboostHandler(model_path=settings.model.path)
+    handler = CatboostHandler(pipeline_path=settings.pipeline.path)
     _app.state.catboost_handler = handler
     yield
 

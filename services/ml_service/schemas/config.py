@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Model(BaseModel):
+class Pipeline(BaseModel):
     """
     Схема описания ML модели для конфига
     """
@@ -20,4 +20,4 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
         env_file=".env"
     )
-    model: Model
+    pipeline: Pipeline

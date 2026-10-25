@@ -2,8 +2,8 @@ import logging
 
 import numpy as np
 import pandas as pd
-from catboost import CatBoostRegressor
-from enum import Enum
+from pickle import load as load_model
+from sklearn.pipeline import Pipeline
 from fastapi import HTTPException, status
 from services.ml_service.schemas.request import InputFeatures, RequestData
 from services.ml_service.schemas.response import ResponseData
@@ -23,28 +23,28 @@ class CatboostHandler:
         "model_params": dict
     }
 
-    def __init__(self, model_path: str):
+    def __init__(self, pipeline_path: str):
         """
-        :param model_path: Путь к файлу с весами моделей.
+        :param pipeline_path: Путь к файлу с пайплайном.
         """
-        self._model_path = model_path
-        self._model = self._load_credit_model(model_path=self._model_path)
+        self._model_path = pipeline_path
+        self._pipeline = self._load_pipeline(pipeline_path=self._model_path)
 
     @staticmethod
-    def _load_credit_model(model_path: str) -> CatBoostRegressor | None:
+    def _load_pipeline(pipeline_path: str) -> Pipeline:
         """
         Загрузка обученной модели.
 
-        :param model_path: Путь до модели.
+        :param pipeline_path: Путь до пайплайна.
 
         :return: Обученная модель.
         """
         try:
-            model = CatBoostRegressor()
-            model.load_model(model_path)
-            logger.info(f"Модель успешно загружена из {model_path}")
+            with open(pipeline_path, "rb") as file:
+                model = load_model(file)
+            logger.info(f"Модель успешно загружена из {pipeline_path}")
         except Exception:
-            logger.exception(f"Не удалось загрузить модель из {model_path}")
+            logger.exception(f"Не удалось загрузить модель из {pipeline_path}")
             raise
         return model
 
@@ -77,7 +77,7 @@ class CatboostHandler:
 
         :return: Предсказание модели.
         """
-        if self._model is None:
+        if self._pipeline is None:
             raise RuntimeError("Модель не загружена")
 
         params = model_params.model_dump()
@@ -90,7 +90,7 @@ class CatboostHandler:
 
         X = pd.DataFrame(params)
 
-        prediction = self._model.predict(X)
+        prediction = self._pipeline.predict(X)
         return float(np.asarray(prediction).ravel()[0])
 
     def handle(self, params: RequestData) -> ResponseData:
