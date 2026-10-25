@@ -1,27 +1,80 @@
 # Инструкции по запуску микросервиса
 
-Каждая инструкция выполняется из директории репозитория mle-sprint3-completed
-Если необходимо перейти в поддиректорию, напишите соотвесвтующую команду
-
 ## 1. FastAPI микросервис в виртуальном окружение
-```python
-# команды создания виртуального окружения
-# и установки необходимых библиотек в него
 
+### 1.1. Конфигурация
 
-# команда перехода в директорию
+Создайте файл .env, скопируйте в него содержимое файла 
+[.env_template](.env_template) и заполните.
 
+### 1.2. Виртуальное окружение
 
-# команда запуска сервиса с помощью uvicorn
+Создайте виртуальное окружение и активируйте его:
+
+```shell
+python -m venv .venv
+source .venv/bin/activate
 ```
+
+Установите зависимости:
+
+```shell
+pip install -r services/requirements.txt
+```
+
+### 1.3. Запуск приложения
+
+```shell
+uvicorn services.ml_service.app:app --host 0.0.0.0 --port 8000
+```
+
+При успешном запуске в консоле будут выведены логи:
+
+```
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+Перейдите в браузере по адресу http://0.0.0.0:8000/docs:
+
+![fastapi_docs.png](docs/imgs/fastapi/docs.png)
+
+### Пример запроса из swagger'а:
+
+**Запрос**:
+
+![fastapi_request.png](docs/imgs/fastapi/request.png)
+
+**Ответ**:
+
+![fastapi_response.png](docs/imgs/fastapi/response.png)
+
+**Пример ошибки**:
+
+![error.png](docs/imgs/fastapi/error.png)
 
 ### Пример curl-запроса к микросервису
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:...' \
+  'http://127.0.0.1:8000/predictor/run' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": 1,
+  "models_features": {
+    "build_year": 1900,
+    "building_type_int": 0,
+    "latitude": -90,
+    "longitude": -180,
+    "ceiling_height": 1,
+    "floors_total": 1,
+    "floor": 1,
+    "rooms": 1,
+    "total_area": 1
+  }
+}'
 ```
-
 
 ## 2. FastAPI микросервис в Docker-контейнере
 
