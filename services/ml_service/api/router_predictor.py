@@ -5,7 +5,7 @@ from .deps.predict_handler import CatboostHandlerDep
 
 
 router_predictor = APIRouter(
-    prefix="predictor",
+    prefix="/predictor",
     tags=["Предсказания"]
 )
 

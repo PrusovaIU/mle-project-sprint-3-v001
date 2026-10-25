@@ -88,7 +88,7 @@ class CatboostHandler:
             float(params["longitude"])
         )
 
-        X = pd.DataFrame(params)
+        X = pd.DataFrame(params, index=[0])
 
         prediction = self._pipeline.predict(X)
         return float(np.asarray(prediction).ravel()[0])

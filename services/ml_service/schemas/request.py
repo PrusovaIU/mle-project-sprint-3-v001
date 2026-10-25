@@ -10,7 +10,7 @@ class InputFeatures(BaseModel):
         ge=1900,
         description="Год постройки дома"
     )
-    building_type: int = Field(
+    building_type_int: int = Field(
         ge=0,
         description="Тип дома"
     )
