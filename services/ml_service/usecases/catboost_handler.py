@@ -5,8 +5,8 @@ import pandas as pd
 from catboost import CatBoostRegressor
 from enum import Enum
 from fastapi import HTTPException, status
-from .schemas.request import InputFeatures, RequestData
-from .schemas.response import ResponseData
+from services.ml_service.schemas.request import InputFeatures, RequestData
+from services.ml_service.schemas.response import ResponseData
 
 
 logger = logging.getLogger(__name__)
