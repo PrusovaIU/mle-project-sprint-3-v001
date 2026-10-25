@@ -51,7 +51,7 @@
 │   └── main.py                         файл с запуском приложения для отладки
 ```
 
-1.2. Модель `MLmodel.pkl`, выгруженная из MLFlow размещена в директории 
+1.2. Модель `MLmodel.pkl`, выгруженная из MLFlow, размещена в директории 
 [models](services/models).
 
 1.3. В файл [Instructions.md](Instructions.md) добавлены инструкции по 
