@@ -57,3 +57,9 @@
 1.3. В файл [Instructions.md](Instructions.md) добавлены инструкции по 
 запуску приложения.
 
+## Этап 2. Контейнеризация микросервиса
+
+2.1. В рамках второго этапа сформирован файл [Dockerfile_ml_service](services/Dockerfile_ml_service)
+
+2.2. Добавлена инструкция [Instructions.md](Instructions.md) по запуску 
+приложения в Docker-контейнере.
