@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from services.ml_service.schemas.config import Settings
+from ..schemas.config import Settings
 
 
 @lru_cache

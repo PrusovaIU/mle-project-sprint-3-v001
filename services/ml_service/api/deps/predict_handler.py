@@ -1,4 +1,4 @@
-from services.ml_service.usecases.catboost_handler import CatboostHandler
+from ...usecases.catboost_handler import CatboostHandler
 from fastapi import Depends, Request
 from typing import Annotated
 

@@ -5,8 +5,8 @@ import pandas as pd
 from pickle import load as load_model
 from sklearn.pipeline import Pipeline
 from fastapi import HTTPException, status
-from services.ml_service.schemas.request import InputFeatures, RequestData
-from services.ml_service.schemas.response import ResponseData
+from ..schemas.request import InputFeatures, RequestData
+from ..schemas.response import ResponseData
 
 
 logger = logging.getLogger(__name__)
