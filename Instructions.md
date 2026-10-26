@@ -78,17 +78,60 @@ curl -X 'POST' \
 
 ## 2. FastAPI микросервис в Docker-контейнере
 
-```bash
-# команда перехода в нужную директорию
+Перейдите в директорию `services`:
 
-# команда для запуска микросервиса в режиме docker compose
+```shell
+cd services
 ```
+
+Соберите образ из docker-file:
+
+```shell
+docker build -f Dockerfile_ml_service -t ml-service .
+```
+
+Запустите контейнер:
+
+```shell
+ docker run --rm -p 8000:8000 ml-service
+```
+
+Через параметр `-p` необходимо пробросить порт. Например, `8000:8000`, где: 
+* первый порт - порт на вашем хосте;
+* второй порт - порт внутри контейнера.
+
+При успешном запуске в консоль будут выведены следующие логи:
+
+```
+INFO:ml_service.usecases.catboost_handler:Модель успешно загружена из /app/models/MLmodel.pkl
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+Работа с сервисом ничем не отличается от запуска без Docker'а (см. пункт 1).
 
 ### Пример curl-запроса к микросервису
 
 ```bash
+```bash
 curl -X 'POST' \
-  'http://localhost:...' \
+  'http://127.0.0.1:8000/predictor/run' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": 1,
+  "models_features": {
+    "build_year": 1900,
+    "building_type_int": 0,
+    "latitude": -90,
+    "longitude": -180,
+    "ceiling_height": 1,
+    "floors_total": 1,
+    "floor": 1,
+    "rooms": 1,
+    "total_area": 1
+  }
+}'
 ```
 
 ## 3. Docker compose для микросервиса и системы моониторинга
