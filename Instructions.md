@@ -172,6 +172,12 @@ docker compose up --build -d
 
 ![target_health.png](docs/imgs/prometheus/target_health.png)
 
+Базовые метрики:
+
+![base_metrics.png](docs/imgs/prometheus/base_metrics.png)
+
+![base_metrics_graph.png](docs/imgs/prometheus/base_metrics_graph.png)
+
 ## 4. Скрипт симуляции нагрузки
 Скрипт генерирует <...> запросов в течение <...> секунд ...
 
