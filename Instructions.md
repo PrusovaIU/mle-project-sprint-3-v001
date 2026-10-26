@@ -136,19 +136,41 @@ curl -X 'POST' \
 
 ## 3. Docker compose для микросервиса и системы моониторинга
 
-```bash
-# команда перехода в нужную директорию
+Перейдите в директорию `services`:
 
-# команда для запуска микросервиса в режиме docker compose
-
+```shell
+cd services
 ```
 
-### Пример curl-запроса к микросервису
+Запустите docker-compose:
 
-```bash
-curl -X 'POST' \
-  'http://localhost:
+```shell
+docker compose up --build -d
 ```
+
+При успешном запуске в консоль будут выведены следующие логи:
+
+```
+ ✔ Image grafana/grafana:latest    Pulled                                                                                              41.4s
+ ✔ Image prom/prometheus:latest    Pulled                                                                                              25.4s
+ ✔ Image services-ml_service       Built                                                                                               56.9s
+ ✔ Network services_monitoring     Created                                                                                              0.0s
+ ✔ Volume services_grafana_data    Created                                                                                              0.0s
+ ✔ Container services-ml_service-1 Started                                                                                              0.3s
+ ✔ Container services-prometheus-1 Started                                                                                              0.4s
+ ✔ Container services-grafana-1    Started
+```
+
+После запуска будут доступны 3 ресурса:
+
+* Приложение для доступа к обученной модели http://127.0.0.1:8000/
+* Prometheus http://localhost:9090/
+* Grafana http://localhost:3000
+
+В Prometheus во вкладке `Status > Target health` будет отображаться сервис
+`ml_service` со статусом `UP`:
+
+![target_health.png](docs/imgs/prometheus/target_health.png)
 
 ## 4. Скрипт симуляции нагрузки
 Скрипт генерирует <...> запросов в течение <...> секунд ...

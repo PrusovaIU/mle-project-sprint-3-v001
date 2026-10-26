@@ -59,7 +59,22 @@
 
 ## Этап 2. Контейнеризация микросервиса
 
-2.1. В рамках второго этапа сформирован файл [Dockerfile_ml_service](services/Dockerfile_ml_service)
+В рамках второго этапа:
+
+2.1. Сформирован файл [Dockerfile_ml_service](services/Dockerfile_ml_service)
 
 2.2. Добавлена инструкция [Instructions.md](Instructions.md) по запуску 
 приложения в Docker-контейнере.
+
+## Этап 3. Запуск сервисов для системы мониторинга
+
+В рамках третьего этапа:
+
+3.1. Сформирован файл [prometheus.yml](services/prometheus/prometheus.yml)
+с конфигурацией Prometheus.
+
+3.2. Сформирован файл [docker-compose.yaml](services/docker-compose.yaml)
+запуска группы сервисов доступа к обученной модели и мониторинга сервиса.
+
+3.3. Добавлена инструкция [Instructions.md](Instructions.md) по запуску 
+системы через docker-compose.
