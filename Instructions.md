@@ -167,8 +167,8 @@ docker compose up --build -d
 * Prometheus http://localhost:9090/
 * Grafana http://localhost:3000
 
-В Prometheus во вкладке `Status > Target health` будет отображаться сервис
-`ml_service` со статусом `UP`:
+В Prometheus во вкладке [Status > Target health](http://localhost:9090/targets) 
+будет отображаться сервис `ml_service` со статусом `UP`:
 
 ![target_health.png](docs/imgs/prometheus/target_health.png)
 
