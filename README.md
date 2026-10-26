@@ -70,11 +70,15 @@
 
 В рамках третьего этапа:
 
-3.1. Сформирован файл [prometheus.yml](services/prometheus/prometheus.yml)
+3.1. В код приложения FastAPI было добавлено использование 
+`prometheus_fastapi_instrumentator.Instrumentator` 
+(см. [app.py](services/ml_service/app.py)).
+
+3.2. Сформирован файл [prometheus.yml](services/prometheus/prometheus.yml)
 с конфигурацией Prometheus.
 
-3.2. Сформирован файл [docker-compose.yaml](services/docker-compose.yaml)
+3.3. Сформирован файл [docker-compose.yaml](services/docker-compose.yaml)
 запуска группы сервисов доступа к обученной модели и мониторинга сервиса.
 
-3.3. Добавлена инструкция [Instructions.md](Instructions.md) по запуску 
+3.4. Добавлена инструкция [Instructions.md](Instructions.md) по запуску 
 системы через docker-compose.
