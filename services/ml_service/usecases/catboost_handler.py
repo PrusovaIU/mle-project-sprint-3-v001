@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from fastapi import HTTPException, status
 from ..schemas.request import InputFeatures, RequestData
 from ..schemas.response import ResponseData
+from ..core import metrics
 
 
 logger = logging.getLogger(__name__)
@@ -101,15 +102,19 @@ class CatboostHandler:
         :return: Ответ с предсказанием.
         """
         try:
-            y_pred = self._price_predict(params.models_features)
-            response = ResponseData(
-                user_id=params.user_id,
-                prediction=y_pred
-            )
+            with metrics.INFERENCE_DURATION.time():
+                y_pred = self._price_predict(params.models_features)
+                response = ResponseData(
+                    user_id=params.user_id,
+                    prediction=y_pred
+                )
         except Exception as err:
             logger.exception("Ошибка при предсказании")
+            metrics.PREDICTION_ERRORS_TOTAL.inc()
             raise HTTPException(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=str(err)
             )
+        else:
+            metrics.PREDICTIONS_TOTAL.inc()
         return response

@@ -3,6 +3,7 @@ from .api.router_predictor import router_predictor
 from .usecases.catboost_handler import CatboostHandler
 from .core.config import settings
 from prometheus_fastapi_instrumentator import Instrumentator
+from .core import metrics
 
 
 
