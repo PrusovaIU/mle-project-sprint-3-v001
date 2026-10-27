@@ -12,6 +12,7 @@ class InputFeatures(BaseModel):
     )
     building_type_int: int = Field(
         ge=0,
+        le=6,
         description="Тип дома"
     )
     latitude: float = Field(
