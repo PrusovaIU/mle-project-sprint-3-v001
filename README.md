@@ -82,3 +82,27 @@
 
 3.4. Добавлена инструкция [Instructions.md](Instructions.md) по запуску 
 системы через docker-compose.
+
+## Этап 4. Построение дашборда для мониторинга
+
+В рамках четвертого этапа:
+
+4.1. Добавлен подсчет пользовательских метрик 
+[metrics.py](services/ml_service/core/metrics.py).
+
+4.2. Дополнены файлы [prometheus.yml](services/prometheus/prometheus.yml) и
+[docker-compose.yaml](services/docker-compose.yaml) для использования 
+`node-exporter` с целью сбора инфраструктурных метрик.
+
+Метрики, предоставляемые `node-exporter`:
+
+![node_exporter_params.png](docs/imgs/prometheus/node_exporter_params.png)
+
+4.3. Создан дашборд в Grafana
+
+![dashboard.png](docs/imgs/grafana/dashboard.png)
+
+JSON-файл с дашбордом: [dashboard.json](docs/dashboard.json)
+
+4.4. Метрики, используемые на дашборде, описаны в файле 
+[Monitoring.md](Monitoring.md).
