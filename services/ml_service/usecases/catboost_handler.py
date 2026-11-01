@@ -1,0 +1,120 @@
+import logging
+
+import numpy as np
+import pandas as pd
+from pickle import load as load_model
+from sklearn.pipeline import Pipeline
+from fastapi import HTTPException, status
+from ..schemas.request import InputFeatures, RequestData
+from ..schemas.response import ResponseData
+from ..core import metrics
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+
+class CatboostHandler:
+    """Класс FastApiHandler, который обрабатывает запрос и возвращает предсказание."""
+
+    DISTANCE_TO_CENTER = "distance_to_center"
+
+    PARAM_TYPES = {
+        "user_id": str,
+        "model_params": dict
+    }
+
+    def __init__(self, pipeline_path: str):
+        """
+        :param pipeline_path: Путь к файлу с пайплайном.
+        """
+        self._model_path = pipeline_path
+        self._pipeline = self._load_pipeline(pipeline_path=self._model_path)
+
+    @staticmethod
+    def _load_pipeline(pipeline_path: str) -> Pipeline:
+        """
+        Загрузка обученной модели.
+
+        :param pipeline_path: Путь до пайплайна.
+
+        :return: Обученная модель.
+        """
+        try:
+            with open(pipeline_path, "rb") as file:
+                model = load_model(file)
+            logger.info(f"Модель успешно загружена из {pipeline_path}")
+        except Exception:
+            logger.exception(f"Не удалось загрузить модель из {pipeline_path}")
+            raise
+        return model
+
+    @staticmethod
+    def _calc_distance(lat1, lon1, lat2=55.45, lon2=37.37) -> float:
+        """
+        Расчет от центра в км по формуле Haversine.
+
+        :param lat1: Широта объекта.
+        :param lon1: Долгота объекта.
+        :param lat2: Широта центра.
+        :param lon2: Долгота центра.
+
+        :return: Расстояние от объекта до центра.
+        """
+        R = 6371.0
+        lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(
+            dlon / 2) ** 2
+        c = 2 * np.arcsin(np.sqrt(a))
+        return R * c
+
+    def _price_predict(self, model_params: InputFeatures) -> float:
+        """
+        Предсказание стоимости объекта.
+
+        :param model_params: Параметры для модели.
+
+        :return: Предсказание модели.
+        """
+        if self._pipeline is None:
+            raise RuntimeError("Модель не загружена")
+
+        params = model_params.model_dump()
+
+        # генерация признака distance_to_center
+        params["distance_to_center"] = self._calc_distance(
+            float(params["latitude"]),
+            float(params["longitude"])
+        )
+
+        X = pd.DataFrame(params, index=[0])
+
+        prediction = self._pipeline.predict(X)
+        return float(np.asarray(prediction).ravel()[0])
+
+    def handle(self, params: RequestData) -> ResponseData:
+        """Функция для обработки запросов API.
+
+        :param params: Параметры запроса.
+
+        :return: Ответ с предсказанием.
+        """
+        try:
+            with metrics.INFERENCE_DURATION.time():
+                y_pred = self._price_predict(params.models_features)
+                response = ResponseData(
+                    user_id=params.user_id,
+                    prediction=y_pred
+                )
+        except Exception as err:
+            logger.exception("Ошибка при предсказании")
+            metrics.PREDICTION_ERRORS_TOTAL.inc()
+            raise HTTPException(
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=str(err)
+            )
+        else:
+            metrics.PREDICTIONS_TOTAL.inc()
+        return response

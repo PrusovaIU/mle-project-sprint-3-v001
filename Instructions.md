@@ -1,68 +1,227 @@
 # Инструкции по запуску микросервиса
 
-Каждая инструкция выполняется из директории репозитория mle-sprint3-completed
-Если необходимо перейти в поддиректорию, напишите соотвесвтующую команду
-
 ## 1. FastAPI микросервис в виртуальном окружение
-```python
-# команды создания виртуального окружения
-# и установки необходимых библиотек в него
 
+### 1.1. Конфигурация
 
-# команда перехода в директорию
+Создайте файл .env, скопируйте в него содержимое файла 
+[.env_template](.env_template) и заполните.
 
+### 1.2. Виртуальное окружение
 
-# команда запуска сервиса с помощью uvicorn
+Создайте виртуальное окружение и активируйте его:
+
+```shell
+python -m venv .venv
+source .venv/bin/activate
 ```
+
+Установите зависимости:
+
+```shell
+pip install -r services/requirements.txt
+```
+
+### 1.3. Запуск приложения
+
+```shell
+uvicorn services.ml_service.app:app --host 0.0.0.0 --port 8000
+```
+
+При успешном запуске в консоле будут выведены логи:
+
+```
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+Перейдите в браузере по адресу http://0.0.0.0:8000/docs:
+
+![fastapi_docs.png](docs/imgs/fastapi/docs.png)
+
+### Пример запроса из swagger'а:
+
+**Запрос**:
+
+![fastapi_request.png](docs/imgs/fastapi/request.png)
+
+**Ответ**:
+
+![fastapi_response.png](docs/imgs/fastapi/response.png)
+
+**Пример ошибки**:
+
+![error.png](docs/imgs/fastapi/error.png)
 
 ### Пример curl-запроса к микросервису
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:...' \
+  'http://127.0.0.1:8000/predictor/run' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": 1,
+  "models_features": {
+    "build_year": 1900,
+    "building_type_int": 0,
+    "latitude": -90,
+    "longitude": -180,
+    "ceiling_height": 1,
+    "floors_total": 1,
+    "floor": 1,
+    "rooms": 1,
+    "total_area": 1
+  }
+}'
 ```
-
 
 ## 2. FastAPI микросервис в Docker-контейнере
 
-```bash
-# команда перехода в нужную директорию
+Перейдите в директорию `services`:
 
-# команда для запуска микросервиса в режиме docker compose
+```shell
+cd services
 ```
+
+Соберите образ из docker-file:
+
+```shell
+docker build -f Dockerfile_ml_service -t ml-service .
+```
+
+Запустите контейнер:
+
+```shell
+ docker run --rm -p 8000:8000 ml-service
+```
+
+Через параметр `-p` необходимо пробросить порт. Например, `8000:8000`, где: 
+* первый порт - порт на вашем хосте;
+* второй порт - порт внутри контейнера.
+
+При успешном запуске в консоль будут выведены следующие логи:
+
+```
+INFO:ml_service.usecases.catboost_handler:Модель успешно загружена из /app/models/MLmodel.pkl
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+Работа с сервисом ничем не отличается от запуска без Docker'а (см. пункт 1).
 
 ### Пример curl-запроса к микросервису
 
 ```bash
-curl -X 'POST' \
-  'http://localhost:...' \
-```
-
-## 3. Docker compose для микросервиса и системы моониторинга
-
-```bash
-# команда перехода в нужную директорию
-
-# команда для запуска микросервиса в режиме docker compose
-
-```
-
-### Пример curl-запроса к микросервису
-
 ```bash
 curl -X 'POST' \
-  'http://localhost:
+  'http://127.0.0.1:8000/predictor/run' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": 1,
+  "models_features": {
+    "build_year": 1900,
+    "building_type_int": 0,
+    "latitude": -90,
+    "longitude": -180,
+    "ceiling_height": 1,
+    "floors_total": 1,
+    "floor": 1,
+    "rooms": 1,
+    "total_area": 1
+  }
+}'
 ```
+
+## 3. Docker compose для микросервиса и системы мониторинга
+
+Перейдите в директорию `services`:
+
+```shell
+cd services
+```
+
+Запустите docker-compose:
+
+```shell
+docker compose up --build -d
+```
+
+При успешном запуске в консоль будут выведены следующие логи:
+
+```
+ ✔ Image grafana/grafana:latest    Pulled                                                                                              41.4s
+ ✔ Image prom/prometheus:latest    Pulled                                                                                              25.4s
+ ✔ Image services-ml_service       Built                                                                                               56.9s
+ ✔ Network services_monitoring     Created                                                                                              0.0s
+ ✔ Volume services_grafana_data    Created                                                                                              0.0s
+ ✔ Container services-ml_service-1 Started                                                                                              0.3s
+ ✔ Container services-prometheus-1 Started                                                                                              0.4s
+ ✔ Container services-grafana-1    Started
+```
+
+После запуска будут доступны 3 ресурса:
+
+* Приложение для доступа к обученной модели http://127.0.0.1:8000/
+* Prometheus http://localhost:9090/
+* Grafana http://localhost:3000
+
+В Prometheus во вкладке [Status > Target health](http://localhost:9090/targets) 
+будет отображаться сервис `ml_service` со статусом `UP`:
+
+![target_health.png](docs/imgs/prometheus/target_health.png)
+
+Базовые метрики:
+
+![base_metrics.png](docs/imgs/prometheus/base_metrics.png)
+
+![base_metrics_graph.png](docs/imgs/prometheus/base_metrics_graph.png)
 
 ## 4. Скрипт симуляции нагрузки
-Скрипт генерирует <...> запросов в течение <...> секунд ...
+
+Перейдите в директорию `load_simulator`:
+
+```shell
+cd services/load_simulator
+```
+
+Запустите генератор нагрузки:
+
+```shell
+locust -f client.py
+```
+
+При успешном запуске в консоль будут выведены следующие логи:
 
 ```
-# команды необходимые для запуска скрипта
-...
+[2026-11-01 16:03:42,551] fox/INFO/locust.main: Starting Locust 2.47.0
+[2026-11-01 16:03:42,551] fox/INFO/locust.main: Starting web interface at http://0.0.0.0:8089, press enter to open your default browser.
 ```
 
-Адреса сервисов:
-- микросервис: http://localhost:<port>
-- Prometheus: ...
-- Grafana: ...
+Перейдите в браузере в браузере по адресу: http://127.0.0.1:8089/
+
+![locust_start_window.png](docs/imgs/load_simulator/locust_start_window.png)
+
+Для запуска нагрузки нажмите кнопку `New` - появится следующее окно:
+
+![run_load.png](docs/imgs/load_simulator/run_load.png)
+
+Заполните поля:
+
+* **Number of users (peak concurrency)**: Общее количество виртуальных 
+пользователей, которые будут одновременно работать с сервисом.
+
+* **Ramp up (users started/second)**: Скорость запуска пользователей в секунду. 
+Это число показывает, сколько новых пользователей будет добавляться каждую 
+секунду, пока не будет достигнуто общее количество из первого поля.
+
+* **Host**: Адрес нагружаемого сервиса. Укажите `127.0.0.1:8000`.
+
+После заполнения этих полей нажмите зеленую кнопку START.
+
+## Адреса сервисов:
+
+- микросервис: http://localhost:8000
+- Prometheus: http://localhost:9090/
+- Grafana: http://localhost:3000
