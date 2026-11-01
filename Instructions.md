@@ -134,7 +134,7 @@ curl -X 'POST' \
 }'
 ```
 
-## 3. Docker compose для микросервиса и системы моониторинга
+## 3. Docker compose для микросервиса и системы мониторинга
 
 Перейдите в директорию `services`:
 
@@ -179,14 +179,49 @@ docker compose up --build -d
 ![base_metrics_graph.png](docs/imgs/prometheus/base_metrics_graph.png)
 
 ## 4. Скрипт симуляции нагрузки
-Скрипт генерирует <...> запросов в течение <...> секунд ...
+
+Перейдите в директорию `load_simulator`:
+
+```shell
+cd services/load_simulator
+```
+
+Запустите генератор нагрузки:
+
+```shell
+locust -f client.py
+```
+
+При успешном запуске в консоль будут выведены следующие логи:
 
 ```
-# команды необходимые для запуска скрипта
-...
+[2026-11-01 16:03:42,551] fox/INFO/locust.main: Starting Locust 2.47.0
+[2026-11-01 16:03:42,551] fox/INFO/locust.main: Starting web interface at http://0.0.0.0:8089, press enter to open your default browser.
 ```
 
-Адреса сервисов:
-- микросервис: http://localhost:<port>
-- Prometheus: ...
-- Grafana: ...
+Перейдите в браузере в браузере по адресу: http://127.0.0.1:8089/
+
+![locust_start_window.png](docs/imgs/load_simulator/locust_start_window.png)
+
+Для запуска нагрузки нажмите кнопку `New` - появится следующее окно:
+
+![run_load.png](docs/imgs/load_simulator/run_load.png)
+
+Заполните поля:
+
+* **Number of users (peak concurrency)**: Общее количество виртуальных 
+пользователей, которые будут одновременно работать с сервисом.
+
+* **Ramp up (users started/second)**: Скорость запуска пользователей в секунду. 
+Это число показывает, сколько новых пользователей будет добавляться каждую 
+секунду, пока не будет достигнуто общее количество из первого поля.
+
+* **Host**: Адрес нагружаемого сервиса. Укажите `127.0.0.1:8000`.
+
+После заполнения этих полей нажмите зеленую кнопку START.
+
+## Адреса сервисов:
+
+- микросервис: http://localhost:8000
+- Prometheus: http://localhost:9090/
+- Grafana: http://localhost:3000
